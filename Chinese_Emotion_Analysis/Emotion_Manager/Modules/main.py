@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import re
-import jieba.posseg
-import Emotion_Manager.Modules.load_dic
 import os
 import os.path
+import re
 import sqlite3
-from Emotion_Manager.Modules.load_dic import load_multi_meaning_word_dic
 from functools import reduce
+import jieba.posseg
+
+from Emotion_Manager.Modules import load_dic
+from Emotion_Manager.Modules.load_dic import load_multi_meaning_word_dic
 from Emotion_Manager.Modules.use_dalianligong_dic import _text_processing_
-from Emotion_Manager.Modules.extract_word_pair import getCommentPair
+
 #DATA SEGMENT
 __choose__ = 0
 no_word_set = set()                            #否定词集
@@ -28,15 +29,15 @@ word_extreme_dic = {}                          #情感词极值词典
 dllg_dic_meta_list = []                        #大连理工情感词元组列表
 
 
-dic_root_path = os.getcwd() + '/Emotion_Manager/Modules/res/dic/'         #情感词典的根目录
+dic_root_path = os.getcwd() + '/res/dic/'         #情感词典的根目录
 
-neg_corpus_root_path = os.getcwd() + '/Emotion_Manager/Modules/res/corpus/hotel/neg/'  #酒店评价负面情绪语料库目录
-pos_corpus_root_path = os.getcwd() + '/Emotion_Manager/Modules/res/corpus/hotel/pos/' #酒店评价正面情绪语料库目录
+neg_corpus_root_path = os.getcwd() + '/res/corpus/hotel/neg/'  #酒店评价负面情绪语料库目录
+pos_corpus_root_path = os.getcwd() + '/res/corpus/hotel/pos/' #酒店评价正面情绪语料库目录
 sense_word_kind_set = {}                #具有情感的词性集合
 
 conn = sqlite3.connect(':memory:')
 conn.execute('create table polysemy(a,n,s)')
-path = os.getcwd() + '/Emotion_Manager/Modules/res/dic/create_by_huzehao/'
+path = os.getcwd() + '/res/dic/create_by_huzehao/'
 file_name = 'word_pair.txt'
 multi_dic = load_multi_meaning_word_dic(path, file_name)
 conn.executemany('insert into polysemy values(?,?,?)', multi_dic)
@@ -61,10 +62,10 @@ def __init_zhiwang_dic__():
     __path__ = dic_root_path + "zhiwang/"
     global zhiwang_neg_sen_dic
     global zhiwang_pos_sen_dic
-    zhiwang_pos_sen_dic = Emotion_Manager.Modules.load_dic.load_dic(__path__, "pos_comment.txt", 1)  # 初始化正面情感词词典
-    Emotion_Manager.Modules.load_dic.append_dic(zhiwang_pos_sen_dic, __path__, "pos_sentiment.txt", 1)
-    zhiwang_neg_sen_dic = Emotion_Manager.Modules.load_dic.load_dic(__path__, "neg_sentiment.txt", -1)  # 初始化负面情感词词典
-    Emotion_Manager.Modules.load_dic.append_dic(zhiwang_neg_sen_dic, __path__, "neg_comment.txt", -1)
+    zhiwang_pos_sen_dic = load_dic.load_dic(__path__, "pos_comment.txt", 1)  # 初始化正面情感词词典
+    load_dic.append_dic(zhiwang_pos_sen_dic, __path__, "pos_sentiment.txt", 1)
+    zhiwang_neg_sen_dic = load_dic.load_dic(__path__, "neg_sentiment.txt", -1)  # 初始化负面情感词词典
+    load_dic.append_dic(zhiwang_neg_sen_dic, __path__, "neg_comment.txt", -1)
 
 
 #---------------------------------------
@@ -74,8 +75,8 @@ def __init_tsinghua_dic__():
     global tsinghua_neg_dic
     global tsinghua_pos_dic
     __path__ = dic_root_path + "TS_lijianjun\\"
-    tsinghua_pos_dic = Modules.load_dic.load_dic(__path__, "tsinghua.positive.gb.txt", 1)
-    tsinghua_neg_dic = Modules.load_dic.load_dic(__path__, "tsinghua.negative.gb.txt", -1)
+    tsinghua_pos_dic = load_dic.load_dic(__path__, "tsinghua.positive.gb.txt", 1)
+    tsinghua_neg_dic = load_dic.load_dic(__path__, "tsinghua.negative.gb.txt", -1)
 
 #---------------------------------------
 #初始化 NTUSD 情感词词典
@@ -84,8 +85,8 @@ def __init_ntusd_dic__():
 	__path__ = dic_root_path + "NTUSD/"
 	global ntusd_neg_dic
 	global ntusd_pos_dic
-	ntusd_pos_dic = Emotion_Manager.Modules.load_dic.load_dic(__path__, "ntusd-positive.txt", 1)
-	ntusd_neg_dic = Emotion_Manager.Modules.load_dic.load_dic(__path__, "ntusd-negative.txt", 1)
+	ntusd_pos_dic = load_dic.load_dic(__path__, "ntusd-positive.txt", 1)
+	ntusd_neg_dic = load_dic.load_dic(__path__, "ntusd-negative.txt", 1)
 
 #---------------------------------------
 #初始化大连理工情感词词典
@@ -93,7 +94,7 @@ def __init_ntusd_dic__():
 def __init_dllg_dic__():
     __path__ = dic_root_path + "dalianligong/"
     global dllg_dic_meta_list
-    dllg_dic_meta_list = Emotion_Manager.Modules.load_dic.read_xlsx_file(__path__, "SenDic.xlsx")
+    dllg_dic_meta_list = load_dic.read_xlsx_file(__path__, "SenDic.xlsx")
 
 #---------------------------------------
 #初始化情感词极值词典
@@ -101,7 +102,7 @@ def __init_dllg_dic__():
 def __init_extreme_dic__():
     __path__ = dic_root_path + "extreme_of_word/"
     global word_extreme_dic
-    word_extreme_dic = Emotion_Manager.Modules.load_dic.load_extreme_dic(__path__, "extreme.txt")
+    word_extreme_dic = load_dic.load_extreme_dic(__path__, "extreme.txt")
 
 
 #-----------------------------------------------------------------------
@@ -119,7 +120,7 @@ def __init_dic__(dic_kind):
     global ext_dic
     jieba.load_userdict(dic_root_path + 'create_by_huzehao/jieba_dic.txt')
     __path__ = dic_root_path + "zhiwang/"
-    ext_dic = Emotion_Manager.Modules.load_dic.load_ext_dic(__path__, "extent_Lv_")  # 初始化程度副词词典
+    ext_dic = load_dic.load_ext_dic(__path__, "extent_Lv_")  # 初始化程度副词词典
     __init__no_word_list()
     if dic_kind == 1:               #知网
         __init_zhiwang_dic__()
@@ -284,34 +285,6 @@ def __meet_conj__(stack):
     pass
 
 #-----------------------------------------------------------------------
-#   para_in :
-#   para_in :
-#   para_out:
-#-----------------------------------------------------------------------
-def _get_group_score(tiny_sentence,group = [{}], stream = None):
-    if len(group) > 0:
-        stack = []
-        score = None
-        score_item = None
-        pair = getCommentPair(tiny_sentence,group)
-        if pair != None:
-            score_item = conn.execute('select s from polysemy where a = ? and n = ?', pair).fetchone()
-            if score_item != None:
-                score = score_item[0]
-                stack.append(score)
-                for item in group:
-                    if item.get('k') == 'no':
-                        stack.append(-1)
-                    elif item.get('k') == 'ext':
-                        stack.append(item.get('s'))
-                return  __CaculateScoreOfGroup__(stack, False), stack, pair
-        #else:
-        score, stack = get_group_score(group)
-        return score, stack, pair
-    return 0, None
-
-
-#-----------------------------------------------------------------------
 #传入一个由描述词的字典组成的列表, 得到一个意群的分值
 #   para_in :
 #   para_in :
@@ -396,70 +369,6 @@ imp_word_pair = open('imp_word_pair.txt','a',encoding='UTF-8')
 ignoredWordList = open('ignored_word.txt','a',encoding='UTF-8')
 
 
-
-#-----------------------------------------------------------------------
-#   测试语料用函数: 输入一个语料所在文件夹路径或文件路径, 在控制台中输出分析的详细结果
-#
-#   para_in :  path 语料文件的路径 or 语料文件夹的路径
-#   para_in :  dic_kind 使用的词典类型
-#   para_out:  不同文件直接以 '===...==='分开
-#              同一文件中不同的短句子 以 '---...---' 分开
-#              对每个短句子依次输出:
-#
-#-----------------------------------------------------------------------
-def getScoreFromDir(path, dic_kind):
-    __init_dic__(dic_kind)
-    filenames = __getFileNameInDir__(path)
-    plus = 0
-    minus = 0
-    zero = 0
-    for filename in filenames:
-         with open(path + filename, 'r', encoding='UTF-8') as f:
-             doc = f.read()
-             #doc = '我们定的是差不多260的特价房，我不想形容，通往房间的过程简直隧道，房间极小，窗户在是停车场位置，整晚被吵！真的不想别人和我一样感觉被忽悠，酒店分两边，应该另一边的还可以，但如果跟我一样要特价房，就要有心理准备！携程服务还可以，退了第二.三天的预定！'
-             pgen = get_paragraph(doc)
-             ggen = get_group(pgen)
-             score_sum = 0
-             print("=============================================")
-             for group in ggen:
-                 wordList = splict_group_into_list(group, dic_kind)
-                 score, stack, pair = _get_group_score(group, wordList)
-                 print('-----------------------------------')
-                 #if pair!=None and score != 0:
-
-                     #imp_word_pair.write(group+ "     ({} , {})".format(pair[0],pair[1]) +'\n\n')
-                 if score < 0:
-                     #i = 0
-                     print("score < 0 : ",score, '\ngroup: ', group, '\nstack:', stack, '\nwordlist: ', wordList, "\npair: ", pair, '\n\n')
-                 elif score > 0:
-                     #i = 1
-                   # wrongSmallSentence.write(group + '\n\n\n')
-                     print("score > 0 : ",score, '\ngroup: ', group ,'\nstack:', stack, '\nwordlist: ', wordList, "\npair: ", pair, '\n\n')
-                 elif score == 0:
-                     #i = 0
-                     print("score == 0 : ",score, '\ngroup: ', group, '\nstack:', stack, '\nwordlist: ', wordList, "\npair: ", pair, '\n\n')
-
-                 score_sum += score
-             if score_sum > 0:
-                 plus += 1
-               #  wrongFileList.write("{}\n".format(filename))
-                 print("filename:",filename,"\nscore:", score_sum)
-             if score_sum == 0:
-                 zero += 1
-                 print("filename:", filename, "\nscore:", score_sum)
-             if score_sum < 0:
-                 minus += 1
-                 print("filename:", filename, "\nscore:", score_sum)
-    print('=================================================')
-    print("\n\n正向：{}\n 负向: {} \n为零：{}".format(plus, minus, zero))
-    wrongFileList.close()
-    wrongSmallSentence.close()
-    imp_word_pair.close()
-
-
-
-
-
 #-----------------------------------------------------------------------
 #                               暴露接口
 #   para_in : text      文件内容    字符串
@@ -497,7 +406,7 @@ teststr3 = '我难过而且悲伤'
 teststr4 = '第一印象不好'
 teststr5 = '这件事不好说'
 
-str = '''服务态度极其差，前台接待好象没有受过培训，连基本的礼貌都不懂，竟然同时接待几个客人；    
+str = '''服务态度极其差，前台接待好象没有受过培训，连基本的礼貌都不懂，竟然同时接待几个客人；
 大堂副理更差，跟客人辩解个没完，要总经理的电话投诉竟然都不敢给。要是没有作什么亏心事情，跟本不用这么怕。'''
 
 
@@ -533,8 +442,4 @@ if __name__ == '__main__':
     #s, stack = _get_group_score('床单陈旧',[{'n': '床单', 'k': 'n', 's': 0, 'p': None}, {'n': '陈旧', 'k': 'a', 's': -1, 'p': 'neg'}])
     #print(s,"  " ,stack)
 
-    #getScoreFromDir(test_total_path, 1)
     print(getScoreFromString('卫生状况也不太近人意',1))
-    #getScoreFromDir(test_file_path,1)
-    #__init_extreme_dic__()
-    #print(word_extreme_dic)
