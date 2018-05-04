@@ -104,9 +104,19 @@ def get_simple_sentence_score(word_list=[{}]):
         return GroupScore, copystack
     return 0, None
 
+def __read_input_text__():
+    os.chdir(sys.path[0]);
+    file_path = os.path.abspath('input/input.txt')
+    file_object = open(file_path, encoding="utf-8")
+    return file_object.read()
+    
 if __name__ == '__main__':
-    text_doc = sys.argv[1]
-    dict_type = int(sys.argv[2])
+    if(sys.argv.__len__()>1):
+        dict_type = int(sys.argv[1])
+    else:
+        dict_type = 1
+        
+    text_doc = __read_input_text__()
     __init_dict__(dict_type)
     simple_sentences_gen = get_simple_sentences_gen(text_doc)
     _score_sum_ = 0;
