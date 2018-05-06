@@ -1,8 +1,9 @@
-'''
-Created on 2018-04-28
-
-@author: Administrator
-'''
+# python3
+# -*- coding: utf-8 -*-
+# @Time      2018/5/6 22:25
+# @Author    Alina Wang
+# @Email     recall52@163.com
+# @Software: PyCharm
 
 import os
 from dictionary.dict_utils import load_dict_by_type
@@ -46,7 +47,7 @@ def __fill_with_word_info__(word, k, s, p = None):
 
 def __getScore__(dict, word):
     return dict.get(word, 0)
-            
+
 def __get_word_detail_info__(word, word_kind):
     word_info = {};
     if word in deny_word_set:
@@ -65,7 +66,7 @@ def __get_word_detail_info__(word, word_kind):
                 word_info = __fill_with_word_info__(word, word_kind, score)
     else:
         word_info = __fill_with_word_info__(word, word_kind, 0)
-        
+
     return word_info
 
 def __caculate_score_of_simple_sentence__(stack = [], ExtInNoAndSen = False):
@@ -73,7 +74,7 @@ def __caculate_score_of_simple_sentence__(stack = [], ExtInNoAndSen = False):
         return reduce(lambda item1, item2: item1 * item2, stack) * -0.5
     else:
         return reduce(lambda item1, item2: item1 * item2, stack)
-    
+
 def get_simple_sentence_score(word_list=[{}]):
     if len(word_list) > 0:
         stack = []
@@ -109,13 +110,13 @@ def __read_input_text__():
     file_path = os.path.abspath('input/input.txt')
     file_object = open(file_path, encoding="utf-8")
     return file_object.read()
-    
+
 if __name__ == '__main__':
     if(sys.argv.__len__()>1):
         dict_type = int(sys.argv[1])
     else:
         dict_type = 1
-        
+
     text_doc = __read_input_text__()
     __init_dict__(dict_type)
     simple_sentences_gen = get_simple_sentences_gen(text_doc)
@@ -126,14 +127,10 @@ if __name__ == '__main__':
         for word, kind in jieba_word_list:
             word_info = __get_word_detail_info__(word, kind)
             word_info_list.append(word_info)
-            
+
         score, stack = get_simple_sentence_score(word_info_list)
         _score_sum_ += score
-    
+
     coding_type = sys.getfilesystemencoding()
 #    print(text_doc)
     print('sentence score is: '+str(_score_sum_))
-        
-    
-    
-    
